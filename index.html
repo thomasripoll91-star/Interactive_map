@@ -2,18 +2,18 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte Statique</title>
+  <title>Carte Leaflet Interactive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     #map { height: 400px; width: 100%; }
   </style>
 </head>
 <body>
-  <div id="map">
-    <img id="staticMap" style="width:100%; height:100%;" />
-  </div>
+  <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // Récupérer latitude, longitude et zoom depuis l'URL
     const params = new URLSearchParams(window.location.search);
@@ -21,13 +21,19 @@
     const lon = parseFloat(params.get('lon')) || 2.3522;
     const zoom = parseInt(params.get('zoom')) || 13;
 
-    // Construire l'URL de la carte statique OpenStreetMap
-    const size = '600x400'; // largeur x hauteur en pixels
-    const marker = `${lat},${lon},red-pushpin`; 
-    const url = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lon}&zoom=${zoom}&size=${size}&markers=${marker}`;
+    // Initialiser la carte Leaflet
+    const map = L.map('map').setView([lat, lon], zoom);
 
-    // Ajouter l'image dans le div
-    document.getElementById('staticMap').src = url;
+    // Ajouter les tuiles OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Ajouter un marqueur
+    L.marker([lat, lon]).addTo(map)
+      .bindPopup(`Latitude: ${lat}, Longitude: ${lon}`)
+      .openPopup();
   </script>
 </body>
 </html>
