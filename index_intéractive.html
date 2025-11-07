@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte Interactive Leaflet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { width: 100%; height: 100vh; } /* carte pleine page */
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Récupérer latitude, longitude et zoom depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get('lat')) || 48.8566; // Paris par défaut
+    const lon = parseFloat(params.get('lon')) || 2.3522;
+    const zoom = parseInt(params.get('zoom')) || 13;
+
+    // Créer la carte interactive
+    const map = L.map('map').setView([lat, lon], zoom);
+
+    // Ajouter le fond de carte OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Ajouter un marqueur au centre
+    L.marker([lat, lon]).addTo(map)
+      .bindPopup('Vous êtes ici !')
+      .openPopup();
+  </script>
+</body>
+</html>
