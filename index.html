@@ -9,7 +9,7 @@
     body { margin: 0; padding: 20px; font-family: sans-serif; }
     img { max-width: 100%; border: 2px solid #333; display: block; margin-bottom: 10px; }
     a { display: inline-block; padding: 8px 12px; background: #007bff; color: #fff; text-decoration: none; border-radius: 4px; }
-    #map { width: 800px; height: 600px; position: absolute; left: -9999px; }
+    #map { width: 800px; height: 600px; position: absolute; left: -9999px; } /* hors écran */
   </style>
 </head>
 <body>
@@ -17,7 +17,7 @@
 
   <div id="output">
     <img id="staticMap" src="" alt="Carte statique">
-    <a id="downloadLink" href="">Télécharger la carte</a>
+    <a id="downloadLink" href="" download="map.png">Télécharger la carte</a>
   </div>
 
   <div id="map"></div> <!-- Leaflet hors écran -->
@@ -58,11 +58,10 @@
       // Afficher l'image
       img.src = dataURL;
 
-      // Nom de téléchargement basé sur lat/lon/zoom
-      const filename = `map-${lat}_${lon}_z${zoom}.png`;
+      // Configurer le téléchargement
       link.href = dataURL;
-      link.download = filename;
 
+      // Nettoyer Leaflet
       map.remove();
     });
   </script>
