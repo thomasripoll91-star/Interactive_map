@@ -2,26 +2,36 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte Figée Leaflet</title>
+  <title>Carte statique dynamique</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { margin: 0; padding: 0; font-family: sans-serif; }
-    #map { width: 100%; height: 100vh; } /* carte pleine page */
+    body { margin: 0; padding: 20px; font-family: sans-serif; }
+    img { max-width: 100%; border: 2px solid #333; display: block; margin-bottom: 10px; }
+    a { display: inline-block; padding: 8px 12px; background: #007bff; color: #fff; text-decoration: none; border-radius: 4px; }
+    #map { width: 800px; height: 600px; position: absolute; left: -9999px; }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <h2>Carte statique dynamique</h2>
+
+  <div id="output">
+    <img id="staticMap" src="" alt="Carte statique">
+    <a id="downloadLink" href="">Télécharger la carte</a>
+  </div>
+
+  <div id="map"></div> <!-- Leaflet hors écran -->
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
   <script>
-    // Récupérer latitude, longitude et zoom depuis l'URL
+    // Lire latitude, longitude et zoom depuis l'URL
     const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat')) || 48.8566; // Paris par défaut
+    const lat = parseFloat(params.get('lat')) || 48.8566;
     const lon = parseFloat(params.get('lon')) || 2.3522;
     const zoom = parseInt(params.get('zoom')) || 13;
 
-    // Créer la carte "figée" (toutes les interactions désactivées)
+    // Créer Leaflet hors écran
     const map = L.map('map', {
       zoomControl: false,
       dragging: false,
@@ -34,15 +44,27 @@
       attributionControl: false
     }).setView([lat, lon], zoom);
 
-    // Ajouter le fond de carte OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    L.marker([lat, lon]).addTo(map);
 
-    // Ajouter un marqueur au centre
-    L.marker([lat, lon]).addTo(map)
-      .bindPopup('Vous êtes ici !')
-      .openPopup();
+    // Générer l'image PNG
+    leafletImage(map, function(err, canvas) {
+      if (err) { console.error(err); return; }
+
+      const dataURL = canvas.toDataURL();
+      const img = document.getElementById('staticMap');
+      const link = document.getElementById('downloadLink');
+
+      // Afficher l'image
+      img.src = dataURL;
+
+      // Nom de téléchargement basé sur lat/lon/zoom
+      const filename = `map-${lat}_${lon}_z${zoom}.png`;
+      link.href = dataURL;
+      link.download = filename;
+
+      map.remove();
+    });
   </script>
 </body>
 </html>
