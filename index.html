@@ -2,37 +2,67 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte Leaflet</title>
+  <title>Carte Leaflet → Image</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     #map { height: 400px; width: 100%; }
+    #output { margin-top: 20px; }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div id="output"></div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
   <script>
     // Récupérer latitude, longitude et zoom depuis l'URL
     const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat')) || 48.8566;   // Paris par défaut
+    const lat = parseFloat(params.get('lat')) || 48.8566;
     const lon = parseFloat(params.get('lon')) || 2.3522;
     const zoom = parseInt(params.get('zoom')) || 13;
 
     // Initialiser la carte
     const map = L.map('map').setView([lat, lon], zoom);
 
-    // Ajouter les tuiles OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
     }).addTo(map);
 
-    // Ajouter un marqueur
     L.marker([lat, lon]).addTo(map)
       .bindPopup(`Latitude: ${lat}, Longitude: ${lon}`)
       .openPopup();
+
+    // Générer une image de la carte
+    function generateImage() {
+      leafletImage(map, function(err, canvas) {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        // Convertir en image PNG
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL();
+        img.style.border = "2px solid #333";
+        img.style.maxWidth = "100%";
+        document.getElementById('output').appendChild(img);
+
+        // Optionnel : créer un lien pour télécharger
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL();
+        link.download = 'map.png';
+        link.textContent = 'Télécharger l’image';
+        link.style.display = 'block';
+        link.style.marginTop = '10px';
+        document.getElementById('output').appendChild(link);
+      });
+    }
+
+    // Attendre que la carte soit complètement chargée
+    map.whenReady(generateImage);
   </script>
 </body>
 </html>
