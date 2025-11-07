@@ -19,18 +19,30 @@
   <script>
     // Récupérer latitude, longitude et zoom depuis l'URL
     const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat')) || 48.8566;   // Paris par défaut
+    const lat = parseFloat(params.get('lat')) || 48.8566; // Paris par défaut
     const lon = parseFloat(params.get('lon')) || 2.3522;
     const zoom = parseInt(params.get('zoom')) || 13;
 
-    // Créer une carte Leaflet hors écran (pas de div affichée)
+    // Créer une carte Leaflet hors écran, invisible
     const mapContainer = document.createElement('div');
-    mapContainer.style.width = "600px";
-    mapContainer.style.height = "400px";
-    const map = L.map(mapContainer).setView([lat, lon], zoom);
+    mapContainer.style.width = "800px";  // largeur de l'image
+    mapContainer.style.height = "600px"; // hauteur de l'image
+    mapContainer.style.display = "none"; // cache le div
+    document.body.appendChild(mapContainer);
+
+    const map = L.map(mapContainer, {
+      zoomControl: false,
+      attributionControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      tap: false,
+      touchZoom: false,
+    }).setView([lat, lon], zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
     }).addTo(map);
 
@@ -39,16 +51,20 @@
     // Générer l'image statique
     leafletImage(map, function(err, canvas) {
       if (err) { console.error(err); return; }
+
       const img = document.createElement('img');
       img.src = canvas.toDataURL();
       document.getElementById('output').appendChild(img);
 
-      // Ajouter un lien pour télécharger l'image
       const link = document.createElement('a');
       link.href = canvas.toDataURL();
       link.download = 'map.png';
       link.textContent = 'Télécharger l’image';
       document.getElementById('output').appendChild(link);
+
+      // Supprimer la carte Leaflet invisible
+      map.remove();
+      mapContainer.remove();
     });
   </script>
 </body>
